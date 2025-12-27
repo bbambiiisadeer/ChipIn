@@ -33,7 +33,7 @@ class _StartPageState extends State<StartPage> with SingleTickerProviderStateMix
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) =>
                 const SigninPage(),
-            transitionDuration: const Duration(milliseconds: 1000),
+            transitionDuration: const Duration(milliseconds: 800),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
               final fadeAnimation = Tween<double>(begin: 0.0, end: 1.0)

@@ -20,7 +20,7 @@ class _SigninPageState extends State<SigninPage>
   void initState() {
     super.initState();
     _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 500),
       vsync: this,
     );
     _fadeAnimation = CurvedAnimation(
