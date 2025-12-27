@@ -51,7 +51,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -61,6 +60,9 @@ flutter:
   assets:
     - assets/images/logoblack.png
     - assets/images/logowhite.png
+    - assets/images/googlelogo.png
+    - assets/images/facebooklogo.png
+    - assets/images/spotifylogo.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -76,11 +78,11 @@ flutter:
   fonts:
     - family: Poppins
       fonts:
-        - asset: assets/fonts/Poppins-Medium.ttf
+        - asset: assets/fonts/Poppins-Regular.ttf
           weight: 400
-        - asset: assets/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Medium.ttf
           weight: 500
-        - asset: assets/Poppins-SemiBold.ttf
+        - asset: assets/fonts/Poppins-SemiBold.ttf
           weight: 600
 
   #   - family: Trajan Pro
