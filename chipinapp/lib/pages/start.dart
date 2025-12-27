@@ -8,18 +8,54 @@ class StartPage extends StatefulWidget {
   State<StartPage> createState() => _StartPageState();
 }
 
-class _StartPageState extends State<StartPage> {
+class _StartPageState extends State<StartPage> with SingleTickerProviderStateMixin {
+  late AnimationController _textFadeController;
+  late Animation<double> _textFadeAnimation;
+
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 5), () {
+    
+    _textFadeController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _textFadeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(parent: _textFadeController, curve: Curves.easeOut),
+    );
+    
+    Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
+        _textFadeController.forward();
+        
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const SigninPage()),
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const SigninPage(),
+            transitionDuration: const Duration(milliseconds: 1000),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              final fadeAnimation = Tween<double>(begin: 0.0, end: 1.0)
+                  .animate(
+                    CurvedAnimation(
+                      parent: animation,
+                      curve: const Interval(0.0, 1.0, curve: Curves.easeIn),
+                    ),
+                  );
+
+              return FadeTransition(opacity: fadeAnimation, child: child);
+            },
+          ),
         );
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _textFadeController.dispose();
+    super.dispose();
   }
 
   @override
@@ -33,14 +69,54 @@ class _StartPageState extends State<StartPage> {
           children: [
             Hero(
               tag: 'logo',
-              child: Image.asset("assets/images/logowhite.png", height: 60.0),
+              flightShuttleBuilder:
+                  (
+                    flightContext,
+                    animation,
+                    direction,
+                    fromContext,
+                    toContext,
+                  ) {
+                    return AnimatedBuilder(
+                      animation: animation,
+                      builder: (context, child) {
+                        final size = 60.0;
+
+                        final color = ColorTween(
+                          begin: Colors.white,
+                          end: Colors.black,
+                        ).evaluate(animation);
+
+                        return ColorFiltered(
+                          colorFilter: ColorFilter.mode(
+                            color ?? Colors.white,
+                            BlendMode.srcATop,
+                          ),
+                          child: Image.asset(
+                            "assets/images/logowhite.png",
+                            height: size,
+                            width: size,
+                            fit: BoxFit.contain,
+                          ),
+                        );
+                      },
+                    );
+                  },
+              child: Image.asset(
+                "assets/images/logowhite.png",
+                height: 60.0,
+                width: 60.0,
+              ),
             ),
-            const Text(
-              "ChipIn",
-              style: TextStyle(
-                fontSize: 40.0,
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
+            FadeTransition(
+              opacity: _textFadeAnimation,
+              child: const Text(
+                "ChipIn",
+                style: TextStyle(
+                  fontSize: 40.0,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],
