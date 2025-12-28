@@ -82,6 +82,7 @@ class _SigninPageState extends State<SigninPage>
                     ),
                     const SizedBox(height: 35.0),
                     TextField(
+                      style: TextStyle(fontSize: 14.0, color: Colors.black),
                       decoration: InputDecoration(
                         hintText: "Email",
                         hintStyle: TextStyle(
@@ -99,6 +100,7 @@ class _SigninPageState extends State<SigninPage>
                     ),
                     const SizedBox(height: 20.0),
                     TextField(
+                      style: TextStyle(fontSize: 14.0, color: Colors.black),
                       obscureText: _obscureText,
                       decoration: InputDecoration(
                         hintText: "Password",
@@ -108,6 +110,7 @@ class _SigninPageState extends State<SigninPage>
                         ),
                         filled: true,
                         fillColor: const Color.fromARGB(255, 242, 242, 242),
+
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.0),
                           borderSide: BorderSide.none,
