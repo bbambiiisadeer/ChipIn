@@ -73,6 +73,11 @@ flutter:
     - assets/images/4people.png
     - assets/images/5people.png
     - assets/images/6people.png
+    - assets/images/bangkokbank.webp
+    - assets/images/kbank.png
+    - assets/images/krungsri.webp
+    - assets/images/scb.png
+    - assets/images/truemoney.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

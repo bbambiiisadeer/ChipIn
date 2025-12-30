@@ -1,10 +1,9 @@
-import 'package:chipinapp/pages/creategroup.dart';
 import 'package:flutter/material.dart';
 import '../pages/start.dart';
 import '../pages/signin.dart';
 import '../pages/signup.dart';
 import '../pages/home.dart';
-import '../pages/creategroup.dart';
+import '../pages/createnewgroup.dart';
 
 class AppRoutes {
   static const start = '/';
@@ -20,7 +19,7 @@ class AppRoutes {
     signin: (_) => const SigninPage(),
     signup: (_) => const SignupPage(),
     home: (_) => const HomePage(),
-    creategroup: (_) => const CreateGroupPage(),
+    creategroup: (_) => const CreateNewGroupPage(),
     // upload: (_) => const UploadPage(),
     // login: (_) => const LoginPage(),
   };

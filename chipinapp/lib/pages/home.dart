@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../pages/creategroup.dart';
+import 'createnewgroup.dart' as pages;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -77,7 +77,7 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(height: 20),
                 const Text(
                   "Add Subscription",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 20),
                 Container(
@@ -160,7 +160,8 @@ class _HomePageState extends State<HomePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const CreateGroupPage(),
+                          builder: (context) =>
+                              const pages.CreateNewGroupPage(),
                         ),
                       );
                     },
@@ -171,10 +172,7 @@ class _HomePageState extends State<HomePage> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: const Text(
-                      "Create New Group",
-                      style: TextStyle(fontSize: 16),
-                    ),
+                    child: const Text("Create New Group"),
                   ),
                 ),
                 const SizedBox(height: 30),

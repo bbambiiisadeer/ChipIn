@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-class CreateGroupPage extends StatefulWidget {
-  const CreateGroupPage({super.key});
+class CreateNewGroupPage extends StatefulWidget {
+  const CreateNewGroupPage({super.key});
 
   @override
-  State<CreateGroupPage> createState() => _CreateGroupPageState();
+  State<CreateNewGroupPage> createState() => _CreateNewGroupPageState();
 }
 
-class _CreateGroupPageState extends State<CreateGroupPage> {
+class _CreateNewGroupPageState extends State<CreateNewGroupPage> {
   String? _selectedService;
   String? _selectedDurationUnit = "Months";
   String? _selectedBank;
@@ -24,8 +25,15 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     {"name": "Disney +", "image": "assets/images/disney+.png"},
   ];
 
-  final List<String> _durationUnits = ["Months", "Years"];
-  final List<String> _bankOptions = ["SCB", "Kbank", "Bangkok Bank", "Krungsri"];
+  final List<String> _durationUnits = ["Days", "Months", "Years"];
+
+  List<Map<String, String>> get _bankOptions => [
+    {"name": "SCB", "image": "assets/images/scb.png"},
+    {"name": "Kbank", "image": "assets/images/kbank.png"},
+    {"name": "Bangkok Bank", "image": "assets/images/bangkokbank.webp"},
+    {"name": "Krungsri", "image": "assets/images/krungsri.webp"},
+    {"name": "True Money Wallet", "image": "assets/images/truemoney.png"},
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +41,13 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     if (_selectedService != null) {
       selectedServiceData = _serviceOptions.firstWhere(
         (element) => element['name'] == _selectedService,
+      );
+    }
+
+    Map<String, String>? selectedBankData;
+    if (_selectedBank != null) {
+      selectedBankData = _bankOptions.firstWhere(
+        (element) => element['name'] == _selectedBank,
       );
     }
 
@@ -59,27 +74,20 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Service Section
               const Text(
                 "Service",
                 style: TextStyle(fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 15.0),
               _buildServiceDropdown(selectedServiceData),
-              
               const SizedBox(height: 25.0),
-              
-              // Price Section
               const Text(
                 "Price",
                 style: TextStyle(fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 15.0),
               _buildPriceField(),
-              
               const SizedBox(height: 25.0),
-              
-              // Duration Section
               const Text(
                 "Duration",
                 style: TextStyle(fontWeight: FontWeight.w500),
@@ -87,20 +95,12 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
               const SizedBox(height: 15.0),
               Row(
                 children: [
-                  Expanded(
-                    flex: 2,
-                    child: _buildDurationField(),
-                  ),
+                  Expanded(flex: 2, child: _buildDurationField()),
                   const SizedBox(width: 10.0),
-                  Expanded(
-                    child: _buildDurationUnitDropdown(),
-                  ),
+                  Expanded(child: _buildDurationUnitDropdown()),
                 ],
               ),
-              
               const SizedBox(height: 25.0),
-              
-              // Payment Info Section
               const Text(
                 "Payment Info",
                 style: TextStyle(fontWeight: FontWeight.w500),
@@ -108,51 +108,33 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
               const SizedBox(height: 15.0),
               Row(
                 children: [
-                  Expanded(
-                    flex: 2,
-                    child: _buildNameField(),
-                  ),
+                  Expanded(flex: 2, child: _buildNameField()),
                   const SizedBox(width: 10.0),
-                  Expanded(
-                    child: _buildBankDropdown(),
-                  ),
+                  Expanded(child: _buildBankDropdown(selectedBankData)),
                 ],
               ),
               const SizedBox(height: 10.0),
               _buildBankAccountField(),
-              
               const SizedBox(height: 25.0),
-              
-              // Slots Open Section
               const Text(
                 "Slots Open",
                 style: TextStyle(fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 15.0),
               _buildSlotsCounter(),
-              
               const SizedBox(height: 10.0),
-              
               Center(
                 child: Text(
                   "The group will disappear once all slots are filled",
-                  style: TextStyle(
-                    fontSize: 13.0,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: TextStyle(fontSize: 13.0, color: Colors.grey.shade600),
                 ),
               ),
-              
               const SizedBox(height: 30.0),
-              
-              // Done Button
               SizedBox(
                 width: double.infinity,
                 height: 50.0,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Handle done action
-                  },
+                  onPressed: () {},
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
                     shape: RoundedRectangleBorder(
@@ -169,7 +151,6 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                   ),
                 ),
               ),
-              
               const SizedBox(height: 30.0),
             ],
           ),
@@ -188,10 +169,9 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
             hoverColor: Colors.transparent,
           ),
           child: PopupMenuButton<String>(
+            position: PopupMenuPosition.under,
             offset: const Offset(0, 5),
-            constraints: BoxConstraints.tightFor(
-              width: constraints.maxWidth,
-            ),
+            constraints: BoxConstraints(minWidth: constraints.maxWidth),
             color: Colors.white,
             elevation: 0,
             shape: RoundedRectangleBorder(
@@ -214,6 +194,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                   child: Padding(
                     padding: const EdgeInsets.all(4.0),
                     child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Container(
                           width: 24.0,
@@ -224,15 +205,16 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                               image: AssetImage(item['image']!),
                               fit: BoxFit.cover,
                             ),
-                            border: Border.all(
-                              color: Colors.grey.shade200,
-                            ),
+                            border: Border.all(color: Colors.grey.shade200),
                           ),
                         ),
                         const SizedBox(width: 10.0),
                         Text(
                           item['name']!,
-                          style: const TextStyle(fontWeight: FontWeight.w400),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 14.0,
+                          ),
                         ),
                       ],
                     ),
@@ -245,11 +227,8 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
               padding: const EdgeInsets.symmetric(horizontal: 15.0),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10.0),
-                color: const Color(0xFFF5F5F5),
-                border: Border.all(
-                  color: Colors.transparent,
-                  width: 1.0,
-                ),
+                color: const Color.fromRGBO(245, 245, 245, 1),
+                border: Border.all(color: Colors.transparent, width: 1.0),
               ),
               child: Row(
                 children: [
@@ -271,14 +250,10 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             image: DecorationImage(
-                              image: AssetImage(
-                                selectedServiceData!['image']!,
-                              ),
+                              image: AssetImage(selectedServiceData!['image']!),
                               fit: BoxFit.cover,
                             ),
-                            border: Border.all(
-                              color: Colors.grey.shade200,
-                            ),
+                            border: Border.all(color: Colors.grey.shade200),
                           ),
                         ),
                         const SizedBox(width: 10.0),
@@ -308,27 +283,32 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   Widget _buildPriceField() {
     return Container(
       height: 47.0,
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.0),
         color: const Color(0xFFF5F5F5),
       ),
-      child: TextField(
-        controller: _priceController,
-        keyboardType: TextInputType.number,
-        decoration: InputDecoration(
-          hintText: "Price",
-          hintStyle: const TextStyle(
-            color: Color(0xFF9E9E9E),
-            fontSize: 16.0,
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _priceController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              style: const TextStyle(fontSize: 14.0),
+              decoration: const InputDecoration(
+                hintText: "Price",
+                hintStyle: TextStyle(color: Color(0xFF9E9E9E), fontSize: 14.0),
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
           ),
-          suffixText: "THB",
-          suffixStyle: const TextStyle(
-            color: Colors.black,
-            fontSize: 16.0,
+          const Text(
+            "THB",
+            style: TextStyle(color: Colors.black, fontSize: 14.0),
           ),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 14.0),
-        ),
+        ],
       ),
     );
   }
@@ -343,14 +323,16 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
       child: TextField(
         controller: _durationController,
         keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        style: const TextStyle(fontSize: 14.0),
         decoration: const InputDecoration(
           hintText: "Duration",
-          hintStyle: TextStyle(
-            color: Color(0xFF9E9E9E),
-            fontSize: 16.0,
-          ),
+          hintStyle: TextStyle(color: Color(0xFF9E9E9E), fontSize: 14.0),
           border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 14.0),
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 15.0,
+            vertical: 14.0,
+          ),
         ),
       ),
     );
@@ -366,10 +348,9 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
             hoverColor: Colors.transparent,
           ),
           child: PopupMenuButton<String>(
+            position: PopupMenuPosition.under,
             offset: const Offset(0, 5),
-            constraints: BoxConstraints.tightFor(
-              width: constraints.maxWidth,
-            ),
+            constraints: BoxConstraints.tightFor(width: constraints.maxWidth),
             color: Colors.white,
             elevation: 0,
             shape: RoundedRectangleBorder(
@@ -389,7 +370,13 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
               return _durationUnits.map((unit) {
                 return PopupMenuItem<String>(
                   value: unit,
-                  child: Text(unit),
+                  child: Text(
+                    unit,
+                    style: const TextStyle(
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
                 );
               }).toList();
             },
@@ -404,10 +391,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                 children: [
                   Text(
                     _selectedDurationUnit ?? "Months",
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 14.0,
-                    ),
+                    style: const TextStyle(color: Colors.black, fontSize: 14.0),
                   ),
                   const Spacer(),
                   const Icon(
@@ -432,20 +416,21 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
       ),
       child: TextField(
         controller: _nameController,
+        style: const TextStyle(fontSize: 14.0),
         decoration: const InputDecoration(
           hintText: "Name",
-          hintStyle: TextStyle(
-            color: Color(0xFF9E9E9E),
-            fontSize: 16.0,
-          ),
+          hintStyle: TextStyle(color: Color(0xFF9E9E9E), fontSize: 14.0),
           border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 14.0),
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 15.0,
+            vertical: 14.0,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildBankDropdown() {
+  Widget _buildBankDropdown(Map<String, String>? selectedBankData) {
     return LayoutBuilder(
       builder: (context, constraints) {
         return Theme(
@@ -455,10 +440,9 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
             hoverColor: Colors.transparent,
           ),
           child: PopupMenuButton<String>(
+            position: PopupMenuPosition.under,
             offset: const Offset(0, 5),
-            constraints: BoxConstraints.tightFor(
-              width: constraints.maxWidth,
-            ),
+            constraints: BoxConstraints(minWidth: constraints.maxWidth),
             color: Colors.white,
             elevation: 0,
             shape: RoundedRectangleBorder(
@@ -475,10 +459,37 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
               });
             },
             itemBuilder: (BuildContext context) {
-              return _bankOptions.map((bank) {
+              return _bankOptions.map((item) {
                 return PopupMenuItem<String>(
-                  value: bank,
-                  child: Text(bank),
+                  value: item['name'],
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 24.0,
+                          height: 24.0,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              image: AssetImage(item['image']!),
+                              fit: BoxFit.cover,
+                            ),
+                            border: Border.all(color: Colors.grey.shade200),
+                          ),
+                        ),
+                        const SizedBox(width: 10.0),
+                        Text(
+                          item['name']!,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 14.0,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 );
               }).toList();
             },
@@ -491,13 +502,44 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
               ),
               child: Row(
                 children: [
-                  Text(
-                    _selectedBank ?? "Bank",
-                    style: TextStyle(
-                      color: _selectedBank == null ? const Color(0xFF9E9E9E) : Colors.black,
-                      fontSize: 14.0,
+                  if (_selectedBank == null)
+                    const Text(
+                      "Bank",
+                      style: TextStyle(
+                        color: Color(0xFF9E9E9E),
+                        fontSize: 14.0,
+                      ),
+                    )
+                  else
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 24.0,
+                          height: 24.0,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              image: AssetImage(selectedBankData!['image']!),
+                              fit: BoxFit.cover,
+                            ),
+                            border: Border.all(color: Colors.grey.shade200),
+                          ),
+                        ),
+                        const SizedBox(width: 10.0),
+                        Flexible(
+                          child: Text(
+                            selectedBankData['name']!,
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 14.0,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
                   const Spacer(),
                   const Icon(
                     Icons.keyboard_arrow_down_outlined,
@@ -522,40 +564,46 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
       child: TextField(
         controller: _bankAccountController,
         keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        style: const TextStyle(fontSize: 14.0),
         decoration: const InputDecoration(
           hintText: "Bank Account Number",
-          hintStyle: TextStyle(
-            color: Color(0xFF9E9E9E),
-            fontSize: 16.0,
-          ),
+          hintStyle: TextStyle(color: Color(0xFF9E9E9E), fontSize: 14.0),
           border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 14.0),
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 15.0,
+            vertical: 14.0,
+          ),
         ),
       ),
     );
   }
 
   Widget _buildSlotsCounter() {
+    String getPeopleImage() {
+      if (_slotsOpen >= 1 && _slotsOpen <= 6) {
+        return 'assets/images/${_slotsOpen}people.png';
+      }
+      return 'assets/images/1people.png';
+    }
+
     return Center(
       child: Column(
         children: [
-          const Icon(
-            Icons.person,
-            size: 60.0,
-          ),
+          Image.asset(getPeopleImage(), height: 38.0, fit: BoxFit.contain),
           const SizedBox(height: 15.0),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              IconButton(
-                onPressed: () {
+              GestureDetector(
+                onTap: () {
                   if (_slotsOpen > 1) {
                     setState(() {
                       _slotsOpen--;
                     });
                   }
                 },
-                icon: Container(
+                child: Container(
                   width: 40.0,
                   height: 40.0,
                   decoration: BoxDecoration(
@@ -565,23 +613,27 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                   child: const Icon(Icons.remove),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                child: Text(
-                  "$_slotsOpen",
-                  style: const TextStyle(
-                    fontSize: 48.0,
-                    fontWeight: FontWeight.w300,
+              SizedBox(
+                width: 140.0,
+                child: Center(
+                  child: Text(
+                    "$_slotsOpen",
+                    style: const TextStyle(
+                      fontSize: 48.0,
+                      fontWeight: FontWeight.w300,
+                    ),
                   ),
                 ),
               ),
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    _slotsOpen++;
-                  });
+              GestureDetector(
+                onTap: () {
+                  if (_slotsOpen < 6) {
+                    setState(() {
+                      _slotsOpen++;
+                    });
+                  }
                 },
-                icon: Container(
+                child: Container(
                   width: 40.0,
                   height: 40.0,
                   decoration: BoxDecoration(
