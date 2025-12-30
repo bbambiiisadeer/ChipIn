@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../pages/signup.dart';
+import '../pages/home.dart';
 
 class SigninPage extends StatefulWidget {
   const SigninPage({super.key, this.fromSignup = false});
@@ -136,16 +137,26 @@ class _SigninPageState extends State<SigninPage>
                       ),
                     ),
                     const SizedBox(height: 35.0),
-                    Container(
-                      height: 47.0,
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(25.0),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Sign in",
-                          style: TextStyle(color: Colors.white),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HomePage(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        height: 47.0,
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(25.0),
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Sign in",
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
                       ),
                     ),

@@ -2,7 +2,7 @@ name: chipinapp
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -63,6 +63,17 @@ flutter:
     - assets/images/googlelogo.png
     - assets/images/facebooklogo.png
     - assets/images/spotifylogo.png
+    - assets/images/netflix.png
+    - assets/images/youtube.png
+    - assets/images/spotify.png
+    - assets/images/disney+.png
+    - assets/images/1people.png
+    - assets/images/2people.png
+    - assets/images/3people.png
+    - assets/images/4people.png
+    - assets/images/5people.png
+    - assets/images/6people.png
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

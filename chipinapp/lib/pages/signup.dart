@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../pages/home.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -112,14 +113,25 @@ class _SignupPageState extends State<SignupPage> {
                 ),
               ),
               const SizedBox(height: 35.0),
-              Container(
-                height: 47.0,
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(25.0),
-                ),
-                child: Center(
-                  child: Text("Sign up", style: TextStyle(color: Colors.white)),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const HomePage()),
+                  );
+                },
+                child: Container(
+                  height: 47.0,
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(25.0),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "Sign up",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
                 ),
               ),
               const Spacer(),
