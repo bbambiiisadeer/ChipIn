@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'createnewgroup.dart' as pages;
+import 'groupdetails.dart'; // เพิ่มบรรทัดนี้เพื่อเชื่อมไปยังหน้า Detail
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,6 +22,7 @@ class _HomePageState extends State<HomePage> {
     {"icon": Icons.person_sharp, "label": "Profile"},
   ];
 
+  // อัปเดตข้อมูล: เพิ่ม members และ paymentInfo (ซ่อนไว้ส่งไปหน้าถัดไป)
   final List<Map<String, dynamic>> _subscriptions = [
     {
       "name": "Netflix Premium",
@@ -28,6 +30,17 @@ class _HomePageState extends State<HomePage> {
       "logo": "assets/images/netflix.png",
       "endDate": "25 Dec.",
       "status": "Unpaid",
+      // ข้อมูลสำหรับหน้า Detail
+      "members": [
+        {'name': 'poonbcw'},
+        {'name': 'bambiiisadeer'},
+        {'name': 'amour'},
+      ],
+      "paymentInfo": {
+        'name': 'Poon Boonchoowit',
+        'bank': 'KBank',
+        'accountNumber': '123-4-56789-1',
+      },
     },
     {
       "name": "Youtube Premium",
@@ -35,6 +48,15 @@ class _HomePageState extends State<HomePage> {
       "logo": "assets/images/youtube.png",
       "endDate": "25 Dec.",
       "status": "Paid",
+      "members": [
+        {'name': 'poonbcw'},
+        {'name': 'user2'},
+      ],
+      "paymentInfo": {
+        'name': 'Poon Boonchoowit',
+        'bank': 'SCB',
+        'accountNumber': '987-6-54321-0',
+      },
     },
     {
       "name": "Youtube Premium",
@@ -42,6 +64,8 @@ class _HomePageState extends State<HomePage> {
       "logo": "assets/images/youtube.png",
       "endDate": "-",
       "status": "Pending",
+      "members": [],
+      "paymentInfo": null,
     },
   ];
 
@@ -127,9 +151,15 @@ class _HomePageState extends State<HomePage> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(25),
                               ),
-                              minimumSize: const Size(80, 50),
+                              minimumSize: const Size(80, 47),
                             ),
-                            child: const Text("Join"),
+                            child: const Text(
+                              "Join",
+                              style: TextStyle(
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -154,16 +184,31 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
-                  height: 55,
+                  height: 47,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
+                    onPressed: () async {
+                      final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
                               const pages.CreateNewGroupPage(),
                         ),
                       );
+
+                      if (!context.mounted) return;
+
+                      if (result != null) {
+                        final newGroup = Map<String, dynamic>.from(result);
+                        newGroup['status'] = "";
+                        // ป้องกัน Error หากข้อมูลกลับมาไม่มี key เหล่านี้
+                        newGroup['members'] = [];
+                        newGroup['paymentInfo'] = {};
+
+                        setState(() {
+                          _subscriptions.add(newGroup);
+                        });
+                        Navigator.pop(context);
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
@@ -172,7 +217,13 @@ class _HomePageState extends State<HomePage> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: const Text("Create New Group"),
+                    child: const Text(
+                      "Create New Group",
+                      style: TextStyle(
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 30),
@@ -213,12 +264,23 @@ class _HomePageState extends State<HomePage> {
           ..._subscriptions.map((sub) {
             return Padding(
               padding: const EdgeInsets.only(bottom: 15.0),
-              child: SubscriptionCard(
-                name: sub['name'],
-                price: sub['price'],
-                logoPath: sub['logo'],
-                endDate: sub['endDate'],
-                status: sub['status'],
+              // เพิ่ม GestureDetector ครอบ SubscriptionCard เพื่อให้กดได้
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => GroupDetailsPage(subscription: sub),
+                    ),
+                  );
+                },
+                child: SubscriptionCard(
+                  name: sub['name'],
+                  price: sub['price'],
+                  logoPath: sub['logo'],
+                  endDate: sub['endDate'],
+                  status: sub['status'],
+                ),
               ),
             );
           }),
@@ -337,7 +399,6 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
-                spacing: 10.0,
                 children: const [
                   Text(
                     "0.00",
@@ -346,6 +407,7 @@ class _HomePageState extends State<HomePage> {
                       fontSize: 40.0,
                     ),
                   ),
+                  SizedBox(width: 10),
                   Text(
                     "THB",
                     style: TextStyle(
@@ -372,7 +434,6 @@ class _HomePageState extends State<HomePage> {
       ),
       padding: const EdgeInsets.all(5.0),
       child: Row(
-        spacing: 5.0,
         children: List.generate(_menuItems.length, (index) {
           bool isSelected = _filterIndex == index;
           return Expanded(
@@ -383,6 +444,7 @@ class _HomePageState extends State<HomePage> {
                 });
               },
               child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 2.5),
                 decoration: BoxDecoration(
                   color: isSelected ? Colors.white : Colors.transparent,
                   borderRadius: BorderRadius.circular(24.0),
@@ -394,7 +456,9 @@ class _HomePageState extends State<HomePage> {
                       color: isSelected
                           ? Colors.black
                           : const Color.fromARGB(255, 92, 94, 98),
-                      fontWeight: FontWeight.w400,
+                      fontWeight: isSelected
+                          ? FontWeight.w500
+                          : FontWeight.w400,
                     ),
                   ),
                 ),
@@ -427,6 +491,7 @@ class SubscriptionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     Color statusBgColor;
     Color statusTextColor;
+    bool hasStatus = status.isNotEmpty;
     String statusText = "• $status";
 
     switch (status) {
@@ -493,20 +558,24 @@ class SubscriptionCard extends StatelessWidget {
                     style: const TextStyle(fontSize: 12.0),
                   ),
                   const Spacer(),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: statusBgColor,
-                      borderRadius: BorderRadius.circular(20.0),
+                  if (hasStatus)
+                    Container(
+                      decoration: BoxDecoration(
+                        color: statusBgColor,
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10.0,
+                        vertical: 2.0,
+                      ),
+                      child: Text(
+                        statusText,
+                        style: TextStyle(
+                          fontSize: 12.0,
+                          color: statusTextColor,
+                        ),
+                      ),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10.0,
-                      vertical: 2.0,
-                    ),
-                    child: Text(
-                      statusText,
-                      style: TextStyle(fontSize: 12.0, color: statusTextColor),
-                    ),
-                  ),
                 ],
               ),
             ],
