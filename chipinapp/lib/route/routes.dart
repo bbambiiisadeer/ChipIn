@@ -4,7 +4,9 @@ import '../pages/signin.dart';
 import '../pages/signup.dart';
 import '../pages/home.dart';
 import '../pages/createnewgroup.dart';
-// import '../pages/groupdetails.dart'; // ไม่ต้อง import ก็ได้ถ้าไม่ได้ใช้ใน map นี้
+import '../pages/profile.dart';
+import '../pages/addreview.dart';
+import '../pages/marketplace.dart';
 
 class AppRoutes {
   static const start = '/';
@@ -12,7 +14,9 @@ class AppRoutes {
   static const signup = '/signup';
   static const home = '/home';
   static const creategroup = '/creategroup';
-  // static const details = '/details'; // ลบ หรือ ไม่ต้องมีบรรทัดนี้
+  static const profile = '/profile';
+  static const addreview = '/addreview';
+  static const marketplace = '/marketplace';
 
   static final routes = <String, WidgetBuilder>{
     start: (_) => const StartPage(),
@@ -20,6 +24,8 @@ class AppRoutes {
     signup: (_) => const SignupPage(),
     home: (_) => const HomePage(),
     creategroup: (_) => const CreateNewGroupPage(),
-    // details: (_) => const GroupDetailsPage(), // ลบทิ้ง เพราะหน้านี้ต้องรับค่า subscription
+    profile: (_) => const ProfilePage(),
+    addreview: (_) => const AddReviewPage(subscription: {}),
+    marketplace: (_) => const MarketplacePage(),
   };
 }

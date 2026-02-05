@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'addreview.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final Map<String, dynamic> subscription;
@@ -47,6 +48,15 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     setState(() {
       _slipImage = null;
     });
+  }
+
+  void _navigateToAddReview() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddReviewPage(subscription: widget.subscription),
+      ),
+    );
   }
 
   @override
@@ -181,7 +191,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                   child: SizedBox(
                     height: 47,
                     child: ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: _navigateToAddReview,
                       style: ButtonStyle(
                         backgroundColor: WidgetStateProperty.all(Colors.black),
                         foregroundColor: WidgetStateProperty.all(Colors.white),
@@ -383,6 +393,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 30.0),
               ],
             ),
           ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'createnewgroup.dart' as pages;
-import 'groupdetails.dart'; // เพิ่มบรรทัดนี้เพื่อเชื่อมไปยังหน้า Detail
+import 'groupdetails.dart';
+import 'profile.dart';
+import 'marketplace.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -22,7 +24,6 @@ class _HomePageState extends State<HomePage> {
     {"icon": Icons.person_sharp, "label": "Profile"},
   ];
 
-  // อัปเดตข้อมูล: เพิ่ม members และ paymentInfo (ซ่อนไว้ส่งไปหน้าถัดไป)
   final List<Map<String, dynamic>> _subscriptions = [
     {
       "name": "Netflix Premium",
@@ -30,7 +31,6 @@ class _HomePageState extends State<HomePage> {
       "logo": "assets/images/netflix.png",
       "endDate": "25 Dec.",
       "status": "Unpaid",
-      // ข้อมูลสำหรับหน้า Detail
       "members": [
         {'name': 'poonbcw'},
         {'name': 'bambiiisadeer'},
@@ -187,6 +187,8 @@ class _HomePageState extends State<HomePage> {
                   height: 47,
                   child: ElevatedButton(
                     onPressed: () async {
+                      Navigator.pop(context); // ปิด modal ก่อน
+
                       final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -200,14 +202,12 @@ class _HomePageState extends State<HomePage> {
                       if (result != null) {
                         final newGroup = Map<String, dynamic>.from(result);
                         newGroup['status'] = "";
-                        // ป้องกัน Error หากข้อมูลกลับมาไม่มี key เหล่านี้
                         newGroup['members'] = [];
                         newGroup['paymentInfo'] = {};
 
                         setState(() {
                           _subscriptions.add(newGroup);
                         });
-                        Navigator.pop(context);
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -235,65 +235,53 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // Function to get the current page based on bottom nav index
+  Widget _getCurrentPage() {
+    switch (_bottomNavIndex) {
+      case 0:
+        return _buildHomePage();
+      case 1:
+        return MarketplacePage();
+      case 2:
+        return _buildNotificationPlaceholder();
+      case 3:
+        return const ProfilePage();
+      default:
+        return _buildHomePage();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        centerTitle: false,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text(
-          "Hi, Poon",
-          style: TextStyle(fontSize: 14.0, color: Colors.black),
-          textAlign: TextAlign.left,
-        ),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.only(left: 15.0, right: 15.0, bottom: 100),
-        children: [
-          _buildTotalDueCard(),
-          const SizedBox(height: 30.0),
-          const Text(
-            "Your Subscription",
-            style: TextStyle(fontWeight: FontWeight.w500),
-          ),
-          const SizedBox(height: 20.0),
-          _buildFilterBar(),
-          const SizedBox(height: 15.0),
-          ..._subscriptions.map((sub) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 15.0),
-              // เพิ่ม GestureDetector ครอบ SubscriptionCard เพื่อให้กดได้
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => GroupDetailsPage(subscription: sub),
-                    ),
-                  );
-                },
-                child: SubscriptionCard(
-                  name: sub['name'],
-                  price: sub['price'],
-                  logoPath: sub['logo'],
-                  endDate: sub['endDate'],
-                  status: sub['status'],
-                ),
+      appBar: _bottomNavIndex == 0
+          ? AppBar(
+              centerTitle: false,
+              backgroundColor: Colors.white,
+              elevation: 0,
+              title: const Text(
+                "Hi, Poon",
+                style: TextStyle(fontSize: 14.0, color: Colors.black),
+                textAlign: TextAlign.left,
               ),
-            );
-          }),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showAddSubscriptionModal(context);
-        },
-        backgroundColor: Colors.black,
-        shape: const CircleBorder(),
-        elevation: 2,
-        child: const Icon(Icons.add, color: Colors.white),
+            )
+          : null, // ซ่อน AppBar ในหน้าอื่นๆ
+      body: _getCurrentPage(),
+      floatingActionButton: Visibility(
+        visible: _bottomNavIndex == 0,
+        maintainSize: false,
+        maintainAnimation: false,
+        maintainState: false,
+        child: FloatingActionButton(
+          onPressed: () {
+            _showAddSubscriptionModal(context);
+          },
+          backgroundColor: Colors.black,
+          shape: const CircleBorder(),
+          elevation: 2,
+          child: const Icon(Icons.add, color: Colors.white),
+        ),
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
@@ -377,6 +365,54 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildHomePage() {
+    return ListView(
+      padding: const EdgeInsets.only(left: 15.0, right: 15.0, bottom: 100),
+      children: [
+        _buildTotalDueCard(),
+        const SizedBox(height: 30.0),
+        const Text(
+          "Your Subscription",
+          style: TextStyle(fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 20.0),
+        _buildFilterBar(),
+        const SizedBox(height: 15.0),
+        ..._subscriptions.map((sub) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 15.0),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => GroupDetailsPage(subscription: sub),
+                  ),
+                );
+              },
+              child: SubscriptionCard(
+                name: sub['name'],
+                price: sub['price'],
+                logoPath: sub['logo'],
+                endDate: sub['endDate'],
+                status: sub['status'],
+              ),
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildNotificationPlaceholder() {
+    return const Center(
+      child: Text(
+        "Notification Page",
+        style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
       ),
     );
   }
@@ -631,6 +667,7 @@ class SubscriptionCard extends StatelessWidget {
                         fontWeight: FontWeight.w500,
                         fontSize: 12.0,
                         color: Colors.black,
+                        decoration: TextDecoration.underline,
                       ),
                     ),
                   ],
