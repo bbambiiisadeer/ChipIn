@@ -9,71 +9,92 @@ class MarketplacePage extends StatefulWidget {
 
 class _MarketplacePageState extends State<MarketplacePage> {
   int _selectedFilter = 0;
-  String _selectedDuration = "months";
+  String _selectedDuration = "All";
+  String _selectedSort = "Rating";
 
   final List<String> _filters = [
     "All",
     "Netflix",
     "Spotify",
     "Youtube",
-    "True Id",
+    "Disney+",
   ];
 
-  final List<String> _durationOptions = ["Days", "Months", "Years"];
+  final List<String> _durationOptions = ["All", "Days", "Months", "Years"];
+  final List<String> _sortOptions = ["Rating", "Price", "Duration"];
 
-  final List<Map<String, dynamic>> _marketplaceItems = [
-    {
-      "name": "Netflix Premium",
-      "host": "bambiiiisadeer",
-      "price": "105",
-      "duration": "1 months",
-      "logo": "assets/images/netflix.png",
-      "category": "Netflix",
-    },
-    {
-      "name": "Spotify Premium",
-      "host": "poonbcw",
-      "price": "42",
-      "duration": "1 months",
-      "logo": "assets/images/spotify.png",
-      "category": "Spotify",
-    },
-    {
-      "name": "Disney+",
-      "host": "amour",
-      "price": "49",
-      "duration": "7 days",
-      "logo": "assets/images/disney.png",
-      "category": "Disney",
-    },
-    {
-      "name": "Youtube Premium",
-      "host": "poonbcw",
-      "price": "39",
-      "duration": "1 months",
-      "logo": "assets/images/youtube.png",
-      "category": "Youtube",
-    },
-    {
-      "name": "Netflix Premium",
-      "host": "user123",
-      "price": "105",
-      "duration": "1 months",
-      "logo": "assets/images/netflix.png",
-      "category": "Netflix",
-    },
-    {
-      "name": "Spotify Premium",
-      "host": "musiclover",
-      "price": "42",
-      "duration": "1 months",
-      "logo": "assets/images/spotify.png",
-      "category": "Spotify",
-    },
-  ];
+  List<Map<String, dynamic>> _marketplaceItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Mock data
+    _marketplaceItems = [
+      {
+        "name": "Netflix Premium",
+        "host": "bambiiiisadeer",
+        "price": "125",
+        "duration": "1 months",
+        "logo": "assets/images/netflix.png",
+        "category": "Netflix",
+        "rating": 5.0,
+        "timestamp": DateTime.now().subtract(const Duration(days: 20)),
+      },
+      {
+        "name": "Spotify Premium",
+        "host": "poonbcw",
+        "price": "42",
+        "duration": "1 months",
+        "logo": "assets/images/spotify.png",
+        "category": "Spotify",
+        "rating": 4.8,
+        "timestamp": DateTime.now().subtract(const Duration(days: 5)),
+      },
+      {
+        "name": "Disney+",
+        "host": "amour",
+        "price": "49",
+        "duration": "7 days",
+        "logo": "assets/images/disney+.png",
+        "category": "Disney",
+        "rating": 4.2,
+        "timestamp": DateTime.now().subtract(const Duration(days: 15)),
+      },
+      {
+        "name": "Youtube Premium",
+        "host": "poonbcw",
+        "price": "39",
+        "duration": "1 months",
+        "logo": "assets/images/youtube.png",
+        "category": "Youtube",
+        "rating": 4.7,
+        "timestamp": DateTime.now().subtract(const Duration(days: 1)),
+      },
+      {
+        "name": "Netflix Premium",
+        "host": "user123",
+        "price": "105",
+        "duration": "1 months",
+        "logo": "assets/images/netflix.png",
+        "category": "Netflix",
+        "rating": 4.3,
+        "timestamp": DateTime.now().subtract(const Duration(days: 10)),
+      },
+      {
+        "name": "Spotify Premium",
+        "host": "musiclover",
+        "price": "42",
+        "duration": "1 months",
+        "logo": "assets/images/spotify.png",
+        "category": "Spotify",
+        "rating": 4.9,
+        "timestamp": DateTime.now(),
+      },
+    ];
+  }
 
   List<Map<String, dynamic>> get _filteredItems {
-    var items = _marketplaceItems;
+    var items = List<Map<String, dynamic>>.from(_marketplaceItems);
 
     // Filter by category
     if (_selectedFilter != 0) {
@@ -84,11 +105,79 @@ class _MarketplacePageState extends State<MarketplacePage> {
     }
 
     // Filter by duration
-    items = items
-        .where((item) => item['duration'].contains(_selectedDuration))
-        .toList();
+    if (_selectedDuration != "All") {
+      items = items
+          .where(
+            (item) => item['duration'].toLowerCase().contains(
+              _selectedDuration.toLowerCase(),
+            ),
+          )
+          .toList();
+    }
+
+    // ถ้าเลือก All (ไม่ได้กรอง category) ให้เรียงตาม timestamp ก่อน
+    if (_selectedFilter == 0) {
+      items.sort((a, b) {
+        DateTime timeA = a['timestamp'] as DateTime;
+        DateTime timeB = b['timestamp'] as DateTime;
+        return timeB.compareTo(timeA); // ล่าสุดก่อน
+      });
+    } else {
+      // ถ้าเลือก category เฉพาะแล้ว ถึงจะใช้ sort options
+      switch (_selectedSort) {
+        case "Rating":
+          // เรียงจากมากไปน้อย (สูงสุดก่อน)
+          items.sort((a, b) {
+            double ratingA = (a['rating'] as num?)?.toDouble() ?? 0.0;
+            double ratingB = (b['rating'] as num?)?.toDouble() ?? 0.0;
+            return ratingB.compareTo(ratingA);
+          });
+          break;
+        case "Price":
+          // เรียงจากน้อยไปมาก (ถูกก่อน)
+          items.sort((a, b) {
+            int priceA = int.tryParse(a['price'] ?? '0') ?? 0;
+            int priceB = int.tryParse(b['price'] ?? '0') ?? 0;
+            return priceA.compareTo(priceB);
+          });
+          break;
+        case "Duration":
+          // เรียงจากน้อยไปมาก (สั้นก่อน)
+          items.sort((a, b) {
+            int durationA = _parseDuration(a['duration'] ?? '0 days');
+            int durationB = _parseDuration(b['duration'] ?? '0 days');
+            return durationA.compareTo(durationB);
+          });
+          break;
+      }
+    }
 
     return items;
+  }
+
+  int _parseDuration(String duration) {
+    final parts = duration.split(' ');
+    if (parts.length < 2) return 0;
+
+    int value = int.tryParse(parts[0]) ?? 0;
+    String unit = parts[1].toLowerCase();
+
+    if (unit.contains('month')) {
+      return value * 30;
+    } else if (unit.contains('year')) {
+      return value * 365;
+    } else if (unit.contains('day')) {
+      return value;
+    }
+    return 0;
+  }
+
+  // ฟังก์ชันสำหรับรีเซ็ต sort และ duration
+  void _resetFilters() {
+    setState(() {
+      _selectedSort = "Rating";
+      _selectedDuration = "All";
+    });
   }
 
   @override
@@ -136,6 +225,10 @@ class _MarketplacePageState extends State<MarketplacePage> {
                         onTap: () {
                           setState(() {
                             _selectedFilter = index;
+                            // ถ้ากดเลือก category อื่นที่ไม่ใช่ All ให้รีเซ็ต filters
+                            if (index != 0) {
+                              _resetFilters();
+                            }
                           });
                         },
                         child: Container(
@@ -168,6 +261,8 @@ class _MarketplacePageState extends State<MarketplacePage> {
                         onTap: () {
                           setState(() {
                             _selectedFilter = 0;
+                            // กด X กลับไป All ให้รีเซ็ต filters
+                            _resetFilters();
                           });
                         },
                         child: Container(
@@ -203,7 +298,13 @@ class _MarketplacePageState extends State<MarketplacePage> {
                       const Spacer(),
                       Padding(
                         padding: const EdgeInsets.only(right: 15.0),
-                        child: _buildDurationDropdown(),
+                        child: Row(
+                          children: [
+                            _buildSortButton(),
+                            const SizedBox(width: 10),
+                            _buildFilterButton(),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -213,89 +314,147 @@ class _MarketplacePageState extends State<MarketplacePage> {
     );
   }
 
-  Widget _buildDurationDropdown() {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const Text(
-          "Duration",
-          style: TextStyle(fontSize: 14.0, color: Colors.black),
+  Widget _buildSortButton() {
+    return Theme(
+      data: Theme.of(context).copyWith(
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        hoverColor: Colors.transparent,
+      ),
+      child: PopupMenuButton<String>(
+        position: PopupMenuPosition.under,
+        offset: const Offset(0, 5),
+        color: Colors.white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          side: BorderSide(color: Colors.grey.shade300, width: 1),
         ),
-        const SizedBox(width: 10),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            return Theme(
-              data: Theme.of(context).copyWith(
-                splashColor: Colors.transparent,
-                highlightColor: Colors.transparent,
-                hoverColor: Colors.transparent,
-              ),
-              child: PopupMenuButton<String>(
-                position: PopupMenuPosition.under,
-                offset: const Offset(0, 5),
-                color: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                  side: BorderSide(color: Colors.grey.shade300, width: 1),
-                ),
-                popUpAnimationStyle: AnimationStyle(
-                  duration: const Duration(milliseconds: 150),
-                  curve: Curves.easeOutCubic,
-                ),
-                onSelected: (String value) {
-                  setState(() {
-                    _selectedDuration = value;
-                  });
-                },
-                itemBuilder: (BuildContext context) {
-                  return _durationOptions.map((duration) {
-                    return PopupMenuItem<String>(
-                      value: duration,
-                      child: Text(
-                        duration,
-                        style: const TextStyle(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    );
-                  }).toList();
-                },
-                child: Container(
-                  height: 40.0,
-                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF5F5F5),
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  child: SizedBox(
-                    width: 80.0,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          _selectedDuration,
-                          style: const TextStyle(
-                            fontSize: 14.0,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const Spacer(),
-                        const Icon(
-                          Icons.keyboard_arrow_down_outlined,
-                          color: Color(0xFF5C5E62),
-                          size: 20,
-                        ),
-                      ],
+        popUpAnimationStyle: AnimationStyle(
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOutCubic,
+        ),
+        onSelected: (String value) {
+          setState(() {
+            _selectedSort = value;
+          });
+        },
+        itemBuilder: (BuildContext context) {
+          return _sortOptions.map((sort) {
+            return PopupMenuItem<String>(
+              value: sort,
+              child: Row(
+                children: [
+                  Text(
+                    sort,
+                    style: const TextStyle(
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
-                ),
+                  if (sort == _selectedSort) ...[
+                    const Spacer(),
+                    const Icon(Icons.check, size: 18, color: Colors.black),
+                  ],
+                ],
               ),
             );
-          },
+          }).toList();
+        },
+        child: Container(
+          height: 40.0,
+          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF5F5F5),
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.swap_vert, color: Color(0xFF5C5E62), size: 20),
+              const SizedBox(width: 5),
+              const Text(
+                "Sort",
+                style: TextStyle(fontSize: 14.0, color: Colors.black),
+              ),
+            ],
+          ),
         ),
-      ],
+      ),
+    );
+  }
+
+  Widget _buildFilterButton() {
+    return Theme(
+      data: Theme.of(context).copyWith(
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        hoverColor: Colors.transparent,
+      ),
+      child: PopupMenuButton<String>(
+        position: PopupMenuPosition.under,
+        offset: const Offset(0, 5),
+        color: Colors.white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          side: BorderSide(color: Colors.grey.shade300, width: 1),
+        ),
+        popUpAnimationStyle: AnimationStyle(
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOutCubic,
+        ),
+        onSelected: (String value) {
+          setState(() {
+            _selectedDuration = value;
+          });
+        },
+        itemBuilder: (BuildContext context) {
+          return _durationOptions.map((duration) {
+            return PopupMenuItem<String>(
+              value: duration,
+              child: Row(
+                children: [
+                  Text(
+                    duration,
+                    style: const TextStyle(
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  if (duration == _selectedDuration) ...[
+                    const Spacer(),
+                    const Icon(Icons.check, size: 18, color: Colors.black),
+                  ],
+                ],
+              ),
+            );
+          }).toList();
+        },
+        child: Container(
+          height: 40.0,
+          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF5F5F5),
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.timer_outlined,
+                color: Color(0xFF5C5E62),
+                size: 20,
+              ),
+              const SizedBox(width: 5),
+              const Text(
+                "Duration",
+                style: TextStyle(fontSize: 14.0, color: Colors.black),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -306,7 +465,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
         crossAxisCount: 2,
         crossAxisSpacing: 15.0,
         mainAxisSpacing: 15.0,
-        childAspectRatio: 0.67,
+        childAspectRatio: 0.83,
       ),
       itemCount: _filteredItems.length,
       itemBuilder: (context, index) {
@@ -319,72 +478,66 @@ class _MarketplacePageState extends State<MarketplacePage> {
   Widget _buildMarketplaceCard(Map<String, dynamic> item) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5),
+        color: const Color.fromARGB(255, 255, 255, 255),
         borderRadius: BorderRadius.circular(12.0),
+        border: Border.all(
+          color: const Color.fromARGB(255, 199, 199, 199),
+          width: 1,
+        ),
       ),
-      child: Column(
-        children: [
-          const SizedBox(height: 15.0),
-          Container(
-            width: 63.0,
-            height: 63.0,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              image: DecorationImage(
-                image: AssetImage(item['logo']),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          const SizedBox(height: 15),
-          Text(
-            item['name'],
-            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14.0),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            "By ${item['host']}",
-            style: const TextStyle(
-              fontSize: 12.0,
-              color: Color.fromARGB(255, 92, 94, 98),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            "${item['price']} THB",
-            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14.0),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            item['duration'],
-            style: const TextStyle(fontSize: 14.0, color: Colors.black),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: SizedBox(
-              width: double.infinity,
-              height: 40,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Handle see more action
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
+      child: Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 63.0,
+                height: 63.0,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    image: AssetImage(item['logo']),
+                    fit: BoxFit.cover,
                   ),
                 ),
-                child: const Text(
-                  "See more",
-                  style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500),
-                ),
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 15),
+            Text(
+              item['name'],
+              style: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 14.0,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "${item['price']} THB",
+              style: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 16.0,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              item['duration'],
+              style: const TextStyle(fontSize: 14.0, color: Colors.black),
+            ),
+            const Spacer(),
+            Row(
+              children: [
+                const Icon(Icons.star, size: 16, color: Color(0xFFFFB700)),
+                const SizedBox(width: 4),
+                Text(
+                  "${item['rating']}",
+                  style: const TextStyle(fontSize: 12.0, color: Colors.black),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
