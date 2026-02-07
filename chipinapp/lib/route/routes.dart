@@ -8,6 +8,8 @@ import '../pages/profile.dart';
 import '../pages/addreview.dart';
 import '../pages/marketplace.dart';
 import '../pages/hostgroupdetails.dart';
+import '../pages/notification.dart';
+import '../pages/checkslip.dart';
 
 class AppRoutes {
   static const start = '/';
@@ -19,6 +21,8 @@ class AppRoutes {
   static const addreview = '/addreview';
   static const marketplace = '/marketplace';
   static const hostgroupdetails = '/hostgroupdetails';
+  static const notification = '/notification';
+  static const checkslip = '/checkslip';
 
   static final routes = <String, WidgetBuilder>{
     start: (_) => const StartPage(),
@@ -30,5 +34,7 @@ class AppRoutes {
     addreview: (_) => const AddReviewPage(subscription: {}),
     marketplace: (_) => const MarketplacePage(),
     hostgroupdetails: (_) => const HostGroupDetailsPage(subscription: {}),
+    notification: (_) => const NotificationPage(),
+    checkslip: (_) => const CheckSlipPage(),
   };
 }

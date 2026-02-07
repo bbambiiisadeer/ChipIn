@@ -162,9 +162,21 @@ class _HostGroupDetailsPageState extends State<HostGroupDetailsPage> {
             'showInMarket': false,
             'members': [
               {'name': 'poonbcw', 'status': 'Paid', 'isMe': true},
-              {'name': 'bambiiisadeer', 'status': 'Paid'},
-              {'name': 'amour', 'status': 'Unpaid'},
-              {'name': 'lengsab', 'status': 'Pending'},
+              {
+                'name': 'bambiiisadeer',
+                'status': 'Paid',
+                'email': 'bambii@example.com',
+              },
+              {
+                'name': 'amour',
+                'status': 'Unpaid',
+                'email': 'amour@example.com',
+              },
+              {
+                'name': 'lengsab',
+                'status': 'Pending',
+                'email': 'lengsab@example.com',
+              },
             ],
           }
         : widget.subscription;
@@ -173,9 +185,17 @@ class _HostGroupDetailsPageState extends State<HostGroupDetailsPage> {
         subscriptionData['members'] ??
         [
           {'name': 'poonbcw', 'status': 'Paid', 'isMe': true},
-          {'name': 'bambiiisadeer', 'status': 'Paid'},
-          {'name': 'amour', 'status': 'Unpaid'},
-          {'name': 'lengsab', 'status': 'Pending'},
+          {
+            'name': 'bambiiisadeer',
+            'status': 'Paid',
+            'email': 'bambii@example.com',
+          },
+          {'name': 'amour', 'status': 'Unpaid', 'email': 'amour@example.com'},
+          {
+            'name': 'lengsab',
+            'status': 'Pending',
+            'email': 'lengsab@example.com',
+          },
         ];
 
     return Theme(
@@ -365,10 +385,11 @@ class _HostGroupDetailsPageState extends State<HostGroupDetailsPage> {
                   String name = member['name'] ?? '';
                   String status = member['status'] ?? 'Unpaid';
                   bool isMe = member['isMe'] ?? false;
+                  String email = member['email'] ?? '';
                   String initial = name.isNotEmpty
                       ? name[0].toUpperCase()
                       : '?';
-                  return _buildMemberItem(initial, name, status, isMe);
+                  return _buildMemberItem(initial, name, status, isMe, email);
                 }),
                 const SizedBox(height: 30.0),
               ],
@@ -384,6 +405,7 @@ class _HostGroupDetailsPageState extends State<HostGroupDetailsPage> {
     String name,
     String status,
     bool isMe,
+    String email,
   ) {
     Color statusBgColor;
     Color statusTextColor;
@@ -427,9 +449,31 @@ class _HostGroupDetailsPageState extends State<HostGroupDetailsPage> {
           ),
           const SizedBox(width: 16.0),
           Expanded(
-            child: Text(
-              isMe ? "$name (Me)" : name,
-              style: const TextStyle(fontSize: 14.0, color: Colors.black),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isMe ? "$name (Me)" : name,
+                  style: const TextStyle(
+                    fontSize: 14.0,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                // แสดง email เฉพาะคนที่ไม่ใช่ (Me)
+                if (!isMe && email.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2.0),
+                    child: Text(
+                      email,
+                      style: TextStyle(
+                        fontSize: 12.0,
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
           // ไม่แสดง status badge ถ้าเป็นคน (Me)

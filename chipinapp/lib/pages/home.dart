@@ -4,6 +4,7 @@ import 'groupdetails.dart';
 import 'profile.dart';
 import 'marketplace.dart';
 import 'hostgroupdetails.dart';
+import 'notification.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -244,7 +245,7 @@ class _HomePageState extends State<HomePage> {
       case 1:
         return MarketplacePage();
       case 2:
-        return _buildNotificationPlaceholder();
+        return NotificationPage();
       case 3:
         return const ProfilePage();
       default:
@@ -422,15 +423,6 @@ class _HomePageState extends State<HomePage> {
           );
         }),
       ],
-    );
-  }
-
-  Widget _buildNotificationPlaceholder() {
-    return const Center(
-      child: Text(
-        "Notification Page",
-        style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
-      ),
     );
   }
 
