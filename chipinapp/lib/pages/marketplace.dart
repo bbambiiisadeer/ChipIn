@@ -25,7 +25,309 @@ class _MarketplacePageState extends State<MarketplacePage> {
 
   List<Map<String, dynamic>> _marketplaceItems = [];
 
-  @override
+  void _showSuccessModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      backgroundColor: Colors.white,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle bar
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[400],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 30),
+
+              // Success icon
+              Container(
+                width: 55.0,
+                height: 55.0,
+                decoration: const BoxDecoration(
+                  color: Colors.black,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.check, color: Colors.white, size: 36),
+              ),
+              const SizedBox(height: 20),
+
+              // Success text
+              const Text(
+                "Success !",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 10),
+
+              // Description
+              const Text(
+                "Your request has been sent,",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.black,
+                ),
+              ),
+
+              const Text(
+                "Please wait for the host to approve.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(height: 30),
+
+              // Done button
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                  ),
+                  child: const Text(
+                    "Done",
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 30),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showSubscriptionRequestModal(
+    BuildContext context,
+    Map<String, dynamic> item,
+  ) {
+    final TextEditingController emailController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      backgroundColor: Colors.white,
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20.0,
+              vertical: 10.0,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Handle bar
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[400],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Logo and Title
+                Row(
+                  children: [
+                    Container(
+                      width: 37.0,
+                      height: 37.0,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                          image: AssetImage(item['logo']),
+                          fit: BoxFit.cover,
+                        ),
+                        border: Border.all(
+                          color: const Color.fromARGB(255, 242, 242, 242),
+                          width: 1.0,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 15),
+
+                    // Expanded จะดัน Widget ถัดไปให้ไปสุดขอบขวา
+                    Expanded(
+                      child: Text(
+                        item['name'],
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow:
+                            TextOverflow.ellipsis, // แนะนำ: ตัดคำถ้าชื่อยาวเกิน
+                      ),
+                    ),
+
+                    TextButton(
+                      onPressed: () {
+                        // TODO: Navigate to reviews page
+                      },
+                      // เพิ่ม style ตรงนี้
+                      style: TextButton.styleFrom(
+                        alignment:
+                            Alignment.centerRight, // จัดข้อความในปุ่มให้ชิดขวา
+                        padding: EdgeInsets.zero, // ลบระยะห่างรอบๆ ปุ่มออก
+                        minimumSize: Size
+                            .zero, // ให้ปุ่มเล็กที่สุดเท่าที่ข้อความกินพื้นที่
+                        tapTargetSize: MaterialTapTargetSize
+                            .shrinkWrap, // ลดพื้นที่การกดให้กระชับ
+                      ),
+                      child: const Text(
+                        "See reviews",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          decoration: TextDecoration.underline,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
+                // Info rows
+                _buildInfoRow("By", item['host']),
+                const Divider(height: 1),
+                _buildInfoRow("Price", "${item['price']} THB"),
+                const Divider(height: 1),
+                _buildInfoRow("Duration", item['duration']),
+                const SizedBox(height: 20),
+
+                // Service Email section
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Service Email",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F5F5),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: TextField(
+                        controller: emailController,
+                        decoration: const InputDecoration(
+                          hintText: "Email",
+                          hintStyle: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 15,
+                            vertical: 15,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
+                // Send Request button
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // TODO: Handle send request
+                      if (emailController.text.isNotEmpty) {
+                        // Close the current modal first
+                        Navigator.pop(context);
+                        // Show success modal
+                        _showSuccessModal(context);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                    ),
+                    child: const Text(
+                      "Send Request",
+                      style: TextStyle(
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 30),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 15.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Color.fromARGB(255, 92, 94, 98),
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+          ),
+        ],
+      ),
+    );
+  }
+
   void initState() {
     super.initState();
     // Mock data
@@ -328,7 +630,10 @@ class _MarketplacePageState extends State<MarketplacePage> {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),
-          side: BorderSide(color: Colors.grey.shade300, width: 1),
+          side: BorderSide(
+            color: const Color.fromARGB(255, 237, 237, 237),
+            width: 1,
+          ),
         ),
         popUpAnimationStyle: AnimationStyle(
           duration: const Duration(milliseconds: 150),
@@ -365,7 +670,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
           height: 40.0,
           padding: const EdgeInsets.symmetric(horizontal: 15.0),
           decoration: BoxDecoration(
-            color: const Color(0xFFF5F5F5),
+            color: const Color.fromARGB(255, 237, 237, 237),
             borderRadius: BorderRadius.circular(12.0),
           ),
           child: Row(
@@ -398,7 +703,10 @@ class _MarketplacePageState extends State<MarketplacePage> {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),
-          side: BorderSide(color: Colors.grey.shade300, width: 1),
+          side: BorderSide(
+            color: const Color.fromARGB(255, 237, 237, 237),
+            width: 1,
+          ),
         ),
         popUpAnimationStyle: AnimationStyle(
           duration: const Duration(milliseconds: 150),
@@ -435,7 +743,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
           height: 40.0,
           padding: const EdgeInsets.symmetric(horizontal: 15.0),
           decoration: BoxDecoration(
-            color: const Color(0xFFF5F5F5),
+            color: const Color.fromARGB(255, 237, 237, 237),
             borderRadius: BorderRadius.circular(12.0),
           ),
           child: Row(
@@ -476,67 +784,76 @@ class _MarketplacePageState extends State<MarketplacePage> {
   }
 
   Widget _buildMarketplaceCard(Map<String, dynamic> item) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 255, 255, 255),
-        borderRadius: BorderRadius.circular(12.0),
-        border: Border.all(
-          color: const Color.fromARGB(255, 199, 199, 199),
-          width: 1,
+    return GestureDetector(
+      onTap: () {
+        _showSubscriptionRequestModal(context, item);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color.fromARGB(255, 255, 255, 255),
+          borderRadius: BorderRadius.circular(12.0),
+          border: Border.all(
+            color: const Color.fromARGB(255, 227, 226, 226),
+            width: 1,
+          ),
         ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 63.0,
-                height: 63.0,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    image: AssetImage(item['logo']),
-                    fit: BoxFit.cover,
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 63.0,
+                  height: 63.0,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    image: DecorationImage(
+                      image: AssetImage(item['logo']),
+                      fit: BoxFit.cover,
+                    ),
+                    border: Border.all(
+                      color: const Color.fromARGB(255, 242, 242, 242),
+                      width: 1.0,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 15),
-            Text(
-              item['name'],
-              style: const TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 14.0,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              "${item['price']} THB",
-              style: const TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 16.0,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              item['duration'],
-              style: const TextStyle(fontSize: 14.0, color: Colors.black),
-            ),
-            const Spacer(),
-            Row(
-              children: [
-                const Icon(Icons.star, size: 16, color: Color(0xFFFFB700)),
-                const SizedBox(width: 4),
-                Text(
-                  "${item['rating']}",
-                  style: const TextStyle(fontSize: 12.0, color: Colors.black),
+              const SizedBox(height: 15),
+              Text(
+                item['name'],
+                style: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14.0,
                 ),
-              ],
-            ),
-          ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "${item['price']} THB",
+                style: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16.0,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                item['duration'],
+                style: const TextStyle(fontSize: 14.0, color: Colors.black),
+              ),
+              const Spacer(),
+              Row(
+                children: [
+                  const Icon(Icons.star, size: 16, color: Color(0xFFFFB700)),
+                  const SizedBox(width: 4),
+                  Text(
+                    "${item['rating']}",
+                    style: const TextStyle(fontSize: 12.0, color: Colors.black),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

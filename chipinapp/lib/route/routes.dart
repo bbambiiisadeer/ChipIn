@@ -7,6 +7,7 @@ import '../pages/createnewgroup.dart';
 import '../pages/profile.dart';
 import '../pages/addreview.dart';
 import '../pages/marketplace.dart';
+import '../pages/hostgroupdetails.dart';
 
 class AppRoutes {
   static const start = '/';
@@ -17,6 +18,7 @@ class AppRoutes {
   static const profile = '/profile';
   static const addreview = '/addreview';
   static const marketplace = '/marketplace';
+  static const hostgroupdetails = '/hostgroupdetails';
 
   static final routes = <String, WidgetBuilder>{
     start: (_) => const StartPage(),
@@ -27,5 +29,6 @@ class AppRoutes {
     profile: (_) => const ProfilePage(),
     addreview: (_) => const AddReviewPage(subscription: {}),
     marketplace: (_) => const MarketplacePage(),
+    hostgroupdetails: (_) => const HostGroupDetailsPage(subscription: {}),
   };
 }

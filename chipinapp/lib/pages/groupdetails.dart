@@ -293,8 +293,8 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                           _isCopied ? Icons.check : Icons.copy,
                           size: 18.0,
                           color: _isCopied
-                              ? Colors.grey.shade700
-                              : Colors.grey.shade700,
+                              ? Color.fromARGB(255, 92, 94, 98)
+                              : Color.fromARGB(255, 92, 94, 98),
                         ),
                       ),
                     ),
@@ -419,7 +419,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
               initial,
               style: TextStyle(
                 fontSize: 18.0,
-                color: Colors.grey.shade600,
+                color: Color.fromARGB(255, 92, 94, 98),
                 fontWeight: FontWeight.w500,
               ),
             ),

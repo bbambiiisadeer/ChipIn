@@ -3,6 +3,7 @@ import 'createnewgroup.dart' as pages;
 import 'groupdetails.dart';
 import 'profile.dart';
 import 'marketplace.dart';
+import 'hostgroupdetails.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -265,9 +266,25 @@ class _HomePageState extends State<HomePage> {
                 style: TextStyle(fontSize: 14.0, color: Colors.black),
                 textAlign: TextAlign.left,
               ),
+              actions: [
+                // เพิ่มปุ่มทดสอบตรงนี้
+                IconButton(
+                  icon: const Icon(Icons.settings, color: Colors.white),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            const HostGroupDetailsPage(subscription: {}),
+                      ),
+                    );
+                  },
+                ),
+              ],
             )
-          : null, // ซ่อน AppBar ในหน้าอื่นๆ
+          : null,
       body: _getCurrentPage(),
+
       floatingActionButton: Visibility(
         visible: _bottomNavIndex == 0,
         maintainSize: false,
@@ -421,7 +438,7 @@ class _HomePageState extends State<HomePage> {
     return Container(
       height: 110.0,
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 242, 242, 242),
+        color: const Color.fromARGB(255, 237, 237, 237),
         borderRadius: BorderRadius.circular(10.0),
       ),
       child: Center(
@@ -465,7 +482,7 @@ class _HomePageState extends State<HomePage> {
       height: 47.0,
       width: double.maxFinite,
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 242, 242, 242),
+        color: const Color.fromARGB(255, 237, 237, 237),
         borderRadius: BorderRadius.circular(24.0),
       ),
       padding: const EdgeInsets.all(5.0),
@@ -624,9 +641,9 @@ class SubscriptionCard extends StatelessWidget {
       return Container(
         width: double.infinity,
         decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 242, 242, 242),
+          color: const Color.fromARGB(255, 237, 237, 237),
           border: Border.all(
-            color: const Color.fromARGB(255, 242, 242, 242),
+            color: const Color.fromARGB(255, 237, 237, 237),
             width: 1.0,
           ),
           borderRadius: BorderRadius.circular(12.0),
@@ -685,7 +702,7 @@ class SubscriptionCard extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(12.0),
           border: Border.all(
-            color: const Color.fromARGB(255, 242, 242, 242),
+            color: const Color.fromARGB(255, 227, 227, 227),
             width: 1.0,
           ),
         ),
