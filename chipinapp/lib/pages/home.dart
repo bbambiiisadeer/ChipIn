@@ -5,6 +5,8 @@ import 'profile.dart';
 import 'marketplace.dart';
 import 'hostgroupdetails.dart';
 import 'notification.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -388,6 +390,25 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildHomePage() {
+    final String currentUserId = FirebaseAuth.instance.currentUser?.uid ?? "";
+
+    // 1. กำหนด Query พื้นฐานไปที่คอลเลกชัน 'groups'
+    Query groupQuery = FirebaseFirestore.instance.collection('groups');
+
+    // 2. ปรับแต่ง Query ตาม Filter Index
+    if (_filterIndex == 0) {
+      // [All] แสดงกลุ่มที่เราเป็นสมาชิก (รวมถึงกลุ่มที่เราเป็น Host และใส่ชื่อตัวเองใน members แล้ว)
+      groupQuery = groupQuery.where('members', arrayContains: currentUserId);
+    } else if (_filterIndex == 1) {
+      // [Host] แสดงเฉพาะกลุ่มที่เราเป็นคนสร้าง
+      groupQuery = groupQuery.where('createdBy', isEqualTo: currentUserId);
+    } else if (_filterIndex == 2) {
+      // [Member] แสดงกลุ่มที่เราเป็นสมาชิก "แต่ไม่ใช่คนสร้าง"
+      // หมายเหตุ: Firestore ไม่อนุญาตให้ใช้ != กับ arrayContains ใน Query เดียวกันแบบตรงๆ
+      // จึงแนะนำให้ใช้ filter 'members' แล้วไปเช็คเงื่อนไข UI หรือใช้การกรองเบื้องต้นดังนี้:
+      groupQuery = groupQuery.where('members', arrayContains: currentUserId);
+    }
+
     return ListView(
       padding: const EdgeInsets.only(left: 15.0, right: 15.0, bottom: 100),
       children: [
@@ -400,28 +421,100 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(height: 20.0),
         _buildFilterBar(),
         const SizedBox(height: 15.0),
-        ..._subscriptions.map((sub) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 15.0),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => GroupDetailsPage(subscription: sub),
+
+        StreamBuilder<QuerySnapshot>(
+          // ใส่ orderBy เพื่อให้กลุ่มที่สร้างล่าสุดขึ้นก่อน
+          stream: groupQuery.orderBy('createdAt', descending: true).snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return const Center(child: Text("Error loading data"));
+            }
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: Text("No subscriptions found"),
+                ),
+              );
+            }
+
+            // กรองข้อมูลเพิ่มเติมสำหรับกรณี Member (เพื่อไม่ให้ซ้ำกับ Host)
+            var docs = snapshot.data!.docs;
+            if (_filterIndex == 2) {
+              docs = docs.where((doc) {
+                final data = doc.data() as Map<String, dynamic>;
+                return data['createdBy'] != currentUserId;
+              }).toList();
+            }
+
+            if (docs.isEmpty) {
+              return const Center(child: Text("No subscriptions found"));
+            }
+
+            return Column(
+              children: docs.map((DocumentSnapshot document) {
+                Map<String, dynamic> sub =
+                    document.data()! as Map<String, dynamic>;
+
+                // Logic กำหนดสถานะสี Paid/Unpaid
+                String statusToShow;
+                if (sub['createdBy'] == currentUserId) {
+                  statusToShow = "Paid"; // เราเป็น Host เห็นเป็น Paid เสมอ
+                } else {
+                  statusToShow = sub['status'] ?? "Unpaid";
+                }
+
+                // จัดการเรื่องวันที่
+                String displayDate = "-";
+                if (sub['endDate'] != null) {
+                  DateTime date = (sub['endDate'] as Timestamp).toDate();
+                  List<String> months = [
+                    "Jan",
+                    "Feb",
+                    "Mar",
+                    "Apr",
+                    "May",
+                    "Jun",
+                    "Jul",
+                    "Aug",
+                    "Sep",
+                    "Oct",
+                    "Nov",
+                    "Dec",
+                  ];
+                  displayDate = "${date.day} ${months[date.month - 1]}.";
+                }
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 15.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              sub['createdBy'] == currentUserId
+                              ? HostGroupDetailsPage(subscription: sub)
+                              : GroupDetailsPage(subscription: sub),
+                        ),
+                      );
+                    },
+                    child: SubscriptionCard(
+                      name: sub['serviceName'] ?? "Unknown",
+                      price: sub['price'].toString(),
+                      logoPath: sub['logo'] ?? "assets/images/netflix.png",
+                      endDate: displayDate,
+                      status: statusToShow,
+                    ),
                   ),
                 );
-              },
-              child: SubscriptionCard(
-                name: sub['name'],
-                price: sub['price'],
-                logoPath: sub['logo'],
-                endDate: sub['endDate'],
-                status: sub['status'],
-              ),
-            ),
-          );
-        }),
+              }).toList(),
+            );
+          },
+        ),
       ],
     );
   }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CreateNewGroupPage extends StatefulWidget {
   const CreateNewGroupPage({super.key});
@@ -17,6 +19,7 @@ class _CreateNewGroupPageState extends State<CreateNewGroupPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _bankAccountController = TextEditingController();
   int _slotsOpen = 1;
+  bool _isLoading = false;
 
   final List<Map<String, String>> _serviceOptions = [
     {"name": "Netflix", "image": "assets/images/netflix.png"},
@@ -134,43 +137,81 @@ class _CreateNewGroupPageState extends State<CreateNewGroupPage> {
                 width: double.infinity,
                 height: 47.0,
                 child: ElevatedButton(
-                  onPressed: () {
-                    if (_selectedService != null &&
-                        _priceController.text.isNotEmpty) {
-                      DateTime now = DateTime.now();
-                      int nextMonthNum = now.month + 1;
+                  onPressed: _isLoading
+                      ? null
+                      : () async {
+                          if (_selectedService != null &&
+                              _priceController.text.isNotEmpty) {
+                            setState(
+                              () => _isLoading = true,
+                            ); // สร้างตัวแปร _isLoading ไว้จัดการ UI
 
-                      // จัดการกรณีเดือน 12 แล้วบวกไปเป็นเดือน 1
-                      if (nextMonthNum > 12) {
-                        nextMonthNum = 1;
-                      }
+                            try {
+                              final user = FirebaseAuth.instance.currentUser;
 
-                      List<String> months = [
-                        "Jan",
-                        "Feb",
-                        "Mar",
-                        "Apr",
-                        "May",
-                        "Jun",
-                        "Jul",
-                        "Aug",
-                        "Sep"
-                            "Oct",
-                        "Nov",
-                        "Dec",
-                      ];
-                      String formattedDate =
-                          "${now.day} ${months[nextMonthNum - 1]}.";
+                              // 1. คำนวณวันหมดอายุแบบง่ายๆ (อิงตาม Duration ที่กรอก)
+                              DateTime endDate = DateTime.now();
+                              int duration =
+                                  int.tryParse(_durationController.text) ?? 1;
+                              if (_selectedDurationUnit == "Months") {
+                                endDate = DateTime(
+                                  endDate.year,
+                                  endDate.month + duration,
+                                  endDate.day,
+                                );
+                              } else if (_selectedDurationUnit == "Days") {
+                                endDate = endDate.add(Duration(days: duration));
+                              } else {
+                                endDate = DateTime(
+                                  endDate.year + duration,
+                                  endDate.month,
+                                  endDate.day,
+                                );
+                              }
 
-                      Navigator.pop(context, {
-                        "name": _selectedService,
-                        "price": _priceController.text,
-                        "logo": selectedServiceData!['image'],
-                        "endDate": formattedDate,
-                        "status": "",
-                      });
-                    }
-                  },
+                              // 2. บันทึกข้อมูลลง Firestore
+                              await FirebaseFirestore.instance
+                                  .collection('groups')
+                                  .add({
+                                    'serviceName': _selectedService,
+                                    'price':
+                                        double.tryParse(
+                                          _priceController.text,
+                                        ) ??
+                                        0.0,
+                                    'duration': duration,
+                                    'durationUnit': _selectedDurationUnit,
+                                    'payeeName': _nameController.text,
+                                    'bankName': _selectedBank,
+                                    'bankAccount': _bankAccountController.text,
+                                    'maxSlots': _slotsOpen,
+                                    'availableSlots':
+                                        _slotsOpen, // เริ่มต้นเท่ากับ max
+                                    'createdBy': user?.uid,
+                                    'creatorName': user?.displayName,
+                                    'members': [
+                                      user?.uid,
+                                    ], // เจ้าของกลุ่มเป็นสมาชิกคนแรก
+                                    'createdAt': FieldValue.serverTimestamp(),
+                                    'endDate': endDate,
+                                    'status': 'unpaid',
+                                    'logo': selectedServiceData!['image'],
+                                  });
+
+                              if (mounted) {
+                                Navigator.pop(
+                                  context,
+                                ); // กลับไปหน้าก่อนหน้าเมื่อสร้างกลุ่มเสร็จ
+                              }
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
+                              );
+                            } finally {
+                              if (mounted) setState(() => _isLoading = false);
+                            }
+                          }
+                        },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
                     shape: RoundedRectangleBorder(
